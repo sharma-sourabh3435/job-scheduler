@@ -89,7 +89,7 @@ func (s *SQLiteStorage) initSchema() error {
 func (s *SQLiteStorage) CreateJob(ctx context.Context, job *models.Job) error {
 	query := `INSERT INTO jobs (name, command, schedule, created_at, updated_at) 
 	          VALUES (?, ?, ?, ?, ?)`
-	
+
 	now := time.Now()
 	result, err := s.db.ExecContext(ctx, query, job.Name, job.Command, job.Schedule, now, now)
 	if err != nil {
@@ -110,7 +110,7 @@ func (s *SQLiteStorage) CreateJob(ctx context.Context, job *models.Job) error {
 // GetJob retrieves a job by ID
 func (s *SQLiteStorage) GetJob(ctx context.Context, id int) (*models.Job, error) {
 	query := `SELECT id, name, command, schedule, created_at, updated_at FROM jobs WHERE id = ?`
-	
+
 	job := &models.Job{}
 	err := s.db.QueryRowContext(ctx, query, id).Scan(
 		&job.ID, &job.Name, &job.Command, &job.Schedule, &job.CreatedAt, &job.UpdatedAt,
@@ -129,7 +129,7 @@ func (s *SQLiteStorage) GetJob(ctx context.Context, id int) (*models.Job, error)
 func (s *SQLiteStorage) ListJobs(ctx context.Context, limit, offset int) ([]*models.Job, error) {
 	query := `SELECT id, name, command, schedule, created_at, updated_at 
 	          FROM jobs ORDER BY created_at DESC LIMIT ? OFFSET ?`
-	
+
 	rows, err := s.db.QueryContext(ctx, query, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list jobs: %w", err)
@@ -151,7 +151,7 @@ func (s *SQLiteStorage) ListJobs(ctx context.Context, limit, offset int) ([]*mod
 // UpdateJob updates an existing job
 func (s *SQLiteStorage) UpdateJob(ctx context.Context, job *models.Job) error {
 	query := `UPDATE jobs SET name = ?, command = ?, schedule = ?, updated_at = ? WHERE id = ?`
-	
+
 	now := time.Now()
 	_, err := s.db.ExecContext(ctx, query, job.Name, job.Command, job.Schedule, now, job.ID)
 	if err != nil {
@@ -176,7 +176,7 @@ func (s *SQLiteStorage) DeleteJob(ctx context.Context, id int) error {
 func (s *SQLiteStorage) CreateJobRun(ctx context.Context, jobRun *models.JobRun) error {
 	query := `INSERT INTO job_runs (job_id, worker_id, status, start_time, created_at) 
 	          VALUES (?, ?, ?, ?, ?)`
-	
+
 	now := time.Now()
 	result, err := s.db.ExecContext(ctx, query, jobRun.JobID, jobRun.WorkerID, jobRun.Status, jobRun.StartTime, now)
 	if err != nil {
@@ -197,7 +197,7 @@ func (s *SQLiteStorage) CreateJobRun(ctx context.Context, jobRun *models.JobRun)
 func (s *SQLiteStorage) GetJobRun(ctx context.Context, runID int) (*models.JobRun, error) {
 	query := `SELECT run_id, job_id, worker_id, status, start_time, end_time, logs, exit_code, created_at 
 	          FROM job_runs WHERE run_id = ?`
-	
+
 	jobRun := &models.JobRun{}
 	err := s.db.QueryRowContext(ctx, query, runID).Scan(
 		&jobRun.RunID, &jobRun.JobID, &jobRun.WorkerID, &jobRun.Status,
@@ -217,7 +217,7 @@ func (s *SQLiteStorage) GetJobRun(ctx context.Context, runID int) (*models.JobRu
 func (s *SQLiteStorage) UpdateJobRun(ctx context.Context, jobRun *models.JobRun) error {
 	query := `UPDATE job_runs SET worker_id = ?, status = ?, start_time = ?, end_time = ?, logs = ?, exit_code = ? 
 	          WHERE run_id = ?`
-	
+
 	_, err := s.db.ExecContext(ctx, query,
 		jobRun.WorkerID, jobRun.Status, jobRun.StartTime, jobRun.EndTime, jobRun.Logs, jobRun.ExitCode, jobRun.RunID,
 	)
@@ -232,7 +232,7 @@ func (s *SQLiteStorage) UpdateJobRun(ctx context.Context, jobRun *models.JobRun)
 func (s *SQLiteStorage) GetJobRunsByJobID(ctx context.Context, jobID int, limit, offset int) ([]*models.JobRun, error) {
 	query := `SELECT run_id, job_id, worker_id, status, start_time, end_time, logs, exit_code, created_at 
 	          FROM job_runs WHERE job_id = ? ORDER BY created_at DESC LIMIT ? OFFSET ?`
-	
+
 	rows, err := s.db.QueryContext(ctx, query, jobID, limit, offset)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get job runs: %w", err)
@@ -256,7 +256,7 @@ func (s *SQLiteStorage) GetJobRunsByJobID(ctx context.Context, jobID int, limit,
 func (s *SQLiteStorage) GetLastJobRun(ctx context.Context, jobID int) (*models.JobRun, error) {
 	query := `SELECT run_id, job_id, worker_id, status, start_time, end_time, logs, exit_code, created_at 
 	          FROM job_runs WHERE job_id = ? ORDER BY created_at DESC LIMIT 1`
-	
+
 	jobRun := &models.JobRun{}
 	err := s.db.QueryRowContext(ctx, query, jobID).Scan(
 		&jobRun.RunID, &jobRun.JobID, &jobRun.WorkerID, &jobRun.Status,
@@ -276,7 +276,7 @@ func (s *SQLiteStorage) GetLastJobRun(ctx context.Context, jobID int) (*models.J
 func (s *SQLiteStorage) GetPendingJobRuns(ctx context.Context, limit int) ([]*models.JobRun, error) {
 	query := `SELECT run_id, job_id, worker_id, status, start_time, end_time, logs, exit_code, created_at 
 	          FROM job_runs WHERE status = ? ORDER BY created_at ASC LIMIT ?`
-	
+
 	rows, err := s.db.QueryContext(ctx, query, models.JobStatusPending, limit)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get pending job runs: %w", err)
@@ -300,7 +300,7 @@ func (s *SQLiteStorage) GetPendingJobRuns(ctx context.Context, limit int) ([]*mo
 func (s *SQLiteStorage) GetRunningJobRunsByWorker(ctx context.Context, workerID string) ([]*models.JobRun, error) {
 	query := `SELECT run_id, job_id, worker_id, status, start_time, end_time, logs, exit_code, created_at 
 	          FROM job_runs WHERE worker_id = ? AND status = ?`
-	
+
 	rows, err := s.db.QueryContext(ctx, query, workerID, models.JobStatusRunning)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get running job runs: %w", err)
@@ -325,7 +325,7 @@ func (s *SQLiteStorage) RegisterWorker(ctx context.Context, worker *models.Worke
 	query := `INSERT INTO workers (worker_id, status, last_seen, registered_at) 
 	          VALUES (?, ?, ?, ?) 
 	          ON CONFLICT(worker_id) DO UPDATE SET status = ?, last_seen = ?`
-	
+
 	now := time.Now()
 	_, err := s.db.ExecContext(ctx, query,
 		worker.WorkerID, models.WorkerStatusActive, now, now,
@@ -344,7 +344,7 @@ func (s *SQLiteStorage) RegisterWorker(ctx context.Context, worker *models.Worke
 // GetWorker retrieves a worker by ID
 func (s *SQLiteStorage) GetWorker(ctx context.Context, workerID string) (*models.Worker, error) {
 	query := `SELECT worker_id, status, last_seen, registered_at FROM workers WHERE worker_id = ?`
-	
+
 	worker := &models.Worker{}
 	err := s.db.QueryRowContext(ctx, query, workerID).Scan(
 		&worker.WorkerID, &worker.Status, &worker.LastSeen, &worker.RegisteredAt,
@@ -362,7 +362,7 @@ func (s *SQLiteStorage) GetWorker(ctx context.Context, workerID string) (*models
 // UpdateWorkerHeartbeat updates the last seen timestamp for a worker
 func (s *SQLiteStorage) UpdateWorkerHeartbeat(ctx context.Context, workerID string, lastSeen time.Time) error {
 	query := `UPDATE workers SET last_seen = ?, status = ? WHERE worker_id = ?`
-	
+
 	_, err := s.db.ExecContext(ctx, query, lastSeen, models.WorkerStatusActive, workerID)
 	if err != nil {
 		return fmt.Errorf("failed to update worker heartbeat: %w", err)
@@ -374,7 +374,7 @@ func (s *SQLiteStorage) UpdateWorkerHeartbeat(ctx context.Context, workerID stri
 // UpdateWorkerStatus updates the status of a worker
 func (s *SQLiteStorage) UpdateWorkerStatus(ctx context.Context, workerID string, status string) error {
 	query := `UPDATE workers SET status = ? WHERE worker_id = ?`
-	
+
 	_, err := s.db.ExecContext(ctx, query, status, workerID)
 	if err != nil {
 		return fmt.Errorf("failed to update worker status: %w", err)
@@ -386,7 +386,7 @@ func (s *SQLiteStorage) UpdateWorkerStatus(ctx context.Context, workerID string,
 // GetActiveWorkers retrieves all active workers
 func (s *SQLiteStorage) GetActiveWorkers(ctx context.Context) ([]*models.Worker, error) {
 	query := `SELECT worker_id, status, last_seen, registered_at FROM workers WHERE status = ?`
-	
+
 	rows, err := s.db.QueryContext(ctx, query, models.WorkerStatusActive)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get active workers: %w", err)
@@ -408,7 +408,7 @@ func (s *SQLiteStorage) GetActiveWorkers(ctx context.Context) ([]*models.Worker,
 // ListWorkers retrieves all workers
 func (s *SQLiteStorage) ListWorkers(ctx context.Context) ([]*models.Worker, error) {
 	query := `SELECT worker_id, status, last_seen, registered_at FROM workers ORDER BY registered_at DESC`
-	
+
 	rows, err := s.db.QueryContext(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("failed to list workers: %w", err)

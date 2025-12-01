@@ -12,7 +12,7 @@ import (
 func setupTestDB(t *testing.T) (*SQLiteStorage, func()) {
 	// Create temporary database file
 	tmpFile := "test_scheduler.db"
-	
+
 	storage, err := NewSQLiteStorage(tmpFile)
 	if err != nil {
 		t.Fatalf("Failed to create test database: %v", err)
