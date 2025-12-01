@@ -22,9 +22,9 @@ Logging: Console + DB logs for simplicity
 |   Scheduler       |<-----------------------> |      Worker       |  
 |  (central process)|                          |  (multiple nodes) |  
 +-------------------+        REST API         +-------------------+   
-        |  
-        | stores metadata  
-        v  
+&emsp;        |  
+&emsp;        | stores metadata  
+&emsp;        v  
 +-------------------+  
 |   Database        |  
 |  (Postgres/SQLite)|  
@@ -127,13 +127,13 @@ last_seen	TIMESTAMP	Last heartbeat time
 status	TEXT	active/inactive  
 ### 3. API Design ###
 Scheduler API (REST)  
-Method	Endpoint	Description	Payload / Response  
-POST	/jobs	Submit new job	{name, command, schedule}  
-GET	/jobs/{id}	Get job status & last run	{job info, last run info}  
-POST	/workers/register	Worker registration	{worker_id}  
-POST	/workers/heartbeat	Worker heartbeat	{worker_id}  
-POST	/jobs/{id}/log	Worker submits logs	{worker_id, logs, status}  
-GET	/jobs	List all jobs	[job summaries]  
+Method&emsp;	Endpoint&emsp;	Description&emsp;	Payload / Response  
+POST&emsp;	/jobs&emsp;	Submit new job&emsp;	{name, command, schedule}  
+GET&emsp;	/jobs/{id}&emsp;	Get job status & last run&emsp;	{job info, last run info}  
+POST&emsp;	/workers/register&emsp;	Worker registration&emsp;	{worker_id}  
+POST&emsp;	/workers/heartbeat&emsp;	Worker heartbeat&emsp;	{worker_id}  
+POST&emsp;	/jobs/{id}/log&emsp;	Worker submits logs&emsp;	{worker_id, logs, status}  
+GET&emsp;	/jobs&emsp;	List all jobs&emsp;	[job summaries]  
 ### 4. Worker Protocol ###
 
 Worker starts → POST /workers/register with unique ID  
@@ -183,13 +183,13 @@ Heartbeat/failover ready → distributed architecture foundation
 Minimal feature set now → extend later without breaking API  
 
 ### 7. Milestones for MVP ###
-Week	Task  
-1	Project scaffolding (Go modules, folders) + DB schema + basic CLI  
-2	Implement scheduler REST API → add job submission & status endpoints  
-3	Implement worker registration, polling, and heartbeat  
-4	Implement job assignment logic → workers execute shell commands → update logs/status  
-5	Add retry logic for failed jobs + simple job history query  
-6	Optional: CLI commands to list jobs, check status, and submit jobs  
+Week&emsp;	Task  
+1&emsp;	Project scaffolding (Go modules, folders) + DB schema + basic CLI  
+2&emsp;	Implement scheduler REST API → add job submission & status endpoints  
+3&emsp;	Implement worker registration, polling, and heartbeat  
+4&emsp;	Implement job assignment logic → workers execute shell commands → update logs/status  
+5&emsp;	Add retry logic for failed jobs + simple job history query  
+6&emsp;	Optional: CLI commands to list jobs, check status, and submit jobs  
 ### 8. Open Points for Future Extensions ###
 
 Multi-scheduler support → leader election (Raft/etcd)  
