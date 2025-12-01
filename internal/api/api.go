@@ -9,24 +9,27 @@ import (
 	"time"
 
 	"github.com/sharma-sourabh3435/job-scheduler/internal/models"
+	"github.com/sharma-sourabh3435/job-scheduler/internal/scheduler"
 	"github.com/sharma-sourabh3435/job-scheduler/internal/storage"
 	"github.com/sharma-sourabh3435/job-scheduler/pkg/utils"
 )
 
 // Server represents the API server
 type Server struct {
-	storage storage.Storage
-	logger  *utils.Logger
-	server  *http.Server
+	storage    storage.Storage
+	jobManager *scheduler.JobManager
+	logger     *utils.Logger
+	server     *http.Server
 }
 
 // NewServer creates a new API server instance
-func NewServer(storage storage.Storage, addr string) *Server {
+func NewServer(storage storage.Storage, jobManager *scheduler.JobManager, addr string) *Server {
 	logger := utils.NewLogger("api", utils.INFO)
 
 	s := &Server{
-		storage: storage,
-		logger:  logger,
+		storage:    storage,
+		jobManager: jobManager,
+		logger:     logger,
 	}
 
 	mux := http.NewServeMux()
@@ -151,6 +154,13 @@ func (s *Server) createJob(w http.ResponseWriter, r *http.Request) {
 		s.logger.Error("Failed to create job run: %v", err)
 		s.errorResponse(w, http.StatusInternalServerError, "Failed to create job run")
 		return
+	}
+
+	// Enqueue the job run
+	if s.jobManager != nil {
+		if err := s.jobManager.EnqueueJobRun(jobRun); err != nil {
+			s.logger.Error("Failed to enqueue job run: %v", err)
+		}
 	}
 
 	s.logger.Info("Created job: %d - %s", job.ID, job.Name)
@@ -353,12 +363,23 @@ func (s *Server) handleWorkerNext(w http.ResponseWriter, r *http.Request) {
 	}
 
 	path := strings.TrimPrefix(r.URL.Path, "/workers/")
-	parts := strings.Split(path, "/")
+	workerID := parts[0]
 
-	if len(parts) < 2 || parts[0] == "" || parts[1] != "next" {
-		s.errorResponse(w, http.StatusBadRequest, "Invalid path")
+	// Get next job for worker from job manager
+	if s.jobManager == nil {
+		s.jsonResponse(w, http.StatusOK, map[string]interface{}{"job": nil})
 		return
 	}
+
+	job, err := s.jobManager.GetJobForWorker(r.Context(), workerID)
+	if err != nil {
+		s.logger.Error("Failed to get job for worker %s: %v", workerID, err)
+		s.errorResponse(w, http.StatusInternalServerError, "Failed to get job")
+		return
+	}
+
+	s.jsonResponse(w, http.StatusOK, map[string]interface{}{"job": job})
+}}
 
 	workerID := parts[0]
 
