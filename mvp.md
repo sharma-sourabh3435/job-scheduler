@@ -105,12 +105,13 @@ Abstracted so scheduler can support multiple DBs in future
 Tables:  
 
 jobs  
-Column	Type	Description  
-id	INT PK	Unique job ID  
-name	TEXT	Job name  
-command	TEXT	Shell command to execute  
-schedule	TEXT	Cron string  
-created_at	TIMESTAMP	Job creation time  
+| Column |	Type |	Description |
+|--------|-------|--------------|  
+| id     |INT PK |  Unique job I|  
+|name	|TEXT	|Job name       |
+|command |	TEXT |	Shell command to execute |  
+| schedule	|TEXT	|Cron string | 
+|created_at|	TIMESTAMP|	Job creation time | 
 job_runs  
 Column	Type	Description  
 run_id	INT PK	Unique run ID  
