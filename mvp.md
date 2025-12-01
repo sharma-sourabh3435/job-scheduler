@@ -18,19 +18,22 @@ CLI (optional): Go CLI to submit/manage jobs
 Logging: Console + DB logs for simplicity  
 
 ## 1. High-Level Architecture ##
-+-------------------+  &emsp; HTTP/gRPC&emsp; +-------------------+  
-|   Scheduler       |<-----------------------> |      Worker       |  
-|  (central process)| &emsp; &emsp;            |  (multiple nodes) |  
-+-------------------+ &emsp;   REST API&emsp; +-------------------+   
-&emsp;        |  
-&emsp;        | stores metadata  
-&emsp;        v  
-+-------------------+  
-|   Database        |  
-|  (Postgres/SQLite)|  
-+-------------------+  
 
-  
+```
+┌───────────────────┐                      ┌───────────────────┐
+│   Scheduler       │ <--- HTTP/gRPC ----> │      Worker       │
+│  (central process)│                      │  (multiple nodes) │
+└───────────────────┘                      └───────────────────┘
+         │
+         │ stores metadata
+         │ (REST API)
+         ↓
+┌───────────────────┐
+│   Database        │
+│  (Postgres/SQLite)│
+└───────────────────┘
+```
+
 ## Key Design Decisions for Flexibility: ##
 
 Scheduler and workers communicate over REST → easy to swap for gRPC later.  
@@ -46,61 +49,61 @@ Heartbeat logic in workers allows scheduler to detect failures → can be extend
 
 Responsibilities:  
 
-Accept new jobs via REST API  
+* Accept new jobs via REST API  
 
-Persist jobs in the database  
+* Persist jobs in the database  
 
-Track job status (pending, running, failed, succeeded)  
+* Track job status (pending, running, failed, succeeded)  
 
-Assign jobs to available workers  
+* Assign jobs to available workers  
 
-Track worker heartbeats  
+* Track worker heartbeats  
 
-Handle job reassignment if worker dies  
+* Handle job reassignment if worker dies  
 
 Modules:  
 
-scheduler.go: Job assignment logic  
+* scheduler.go: Job assignment logic  
 
-api.go: REST API endpoints  
+* api.go: REST API endpoints  
 
-worker_manager.go: Tracks active workers and heartbeats  
+* worker_manager.go: Tracks active workers and heartbeats  
 
-storage.go: DB interface  
+* storage.go: DB interface  
 
-job_runner.go (optional in MVP for testing local execution)  
+* job_runner.go (optional in MVP for testing local execution)  
 
 ### 2.2 Worker ###
 
 Responsibilities:  
 
-Register with scheduler  
+* Register with scheduler  
 
-Poll scheduler for new jobs  
+* Poll scheduler for new jobs  
 
-Execute jobs (shell commands for MVP)  
+* Execute jobs (shell commands for MVP)  
 
-Send logs/status updates back  
+* Send logs/status updates back  
 
-Send heartbeat at intervals  
+* Send heartbeat at intervals  
 
 Modules:  
 
-worker.go: Polling & execution loop  
+* worker.go: Polling & execution loop  
 
-api_client.go: Scheduler API communication  
+* api_client.go: Scheduler API communication  
 
-executor.go: Job execution  
+* executor.go: Job execution  
 
-logger.go: Logs to console + DB via scheduler API  
+* logger.go: Logs to console + DB via scheduler API  
 
 ### 2.3 Database ###
 
 Responsibilities:  
 
-Persistent storage for jobs, job runs, worker nodes  
+* Persistent storage for jobs, job runs, worker nodes  
 
-Abstracted so scheduler can support multiple DBs in future  
+* Abstracted so scheduler can support multiple DBs in future  
 
 Tables:  
 
@@ -115,6 +118,7 @@ Tables:
 
 #### job_runs ####  
 |Column|	Type|	Description  |
+|------|--------|----------------|
 |run_id|	INT PK|	Unique run ID  |
 |job_id	|INT FK|	Linked job  |
 |worker_id|	TEXT|	Worker executing this run | 
@@ -125,6 +129,7 @@ Tables:
 
 #### workers ####  
 |Column	|Type|	Description  |
+|-------|----|---------------|
 |worker_id|	TEXT PK|	Unique worker identifier  |
 |last_seen|	TIMESTAMP|	Last heartbeat time  |
 |status|	TEXT|	active/inactive| 
@@ -168,11 +173,11 @@ If worker fails → scheduler reassigns job to another worker
 
 This flow is modular, so you can extend:  
 
-Cron scheduling → DAG workflows  
+* Cron scheduling → DAG workflows  
 
-Shell commands → Python scripts, Docker tasks  
+* Shell commands → Python scripts, Docker tasks  
 
-Single scheduler → multiple schedulers with leader election  
+* Single scheduler → multiple schedulers with leader election  
 
 ### 6. Key MVP Design Principles ###
 
