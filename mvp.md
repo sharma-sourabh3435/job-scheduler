@@ -112,20 +112,23 @@ jobs
 |command |	TEXT |	Shell command to execute |  
 | schedule	|TEXT	|Cron string | 
 |created_at|	TIMESTAMP|	Job creation time | 
+| :------- | :------: | -------: |
 job_runs  
-Column	Type	Description  
-run_id	INT PK	Unique run ID  
-job_id	INT FK	Linked job  
-worker_id	TEXT	Worker executing this run  
-start_time	TIMESTAMP	Run start  
-end_time	TIMESTAMP	Run end  
-status	TEXT	success/failure/running  
-logs	TEXT	Job logs  
+|Column|	Type|	Description  |
+|run_id|	INT PK|	Unique run ID  |
+|job_id	|INT FK|	Linked job  |
+|worker_id|	TEXT|	Worker executing this run | 
+|start_time|	TIMESTAMP|	Run start  |
+|end_time	|TIMESTAMP|	Run end  |
+|status|	TEXT|	success/failure/running | 
+|logs|	TEXT|	Job logs  |
+| :------- | :------: | -------: |
 workers  
-Column	Type	Description  
-worker_id	TEXT PK	Unique worker identifier  
-last_seen	TIMESTAMP	Last heartbeat time  
-status	TEXT	active/inactive  
+|Column	|Type|	Description  |
+|worker_id|	TEXT PK|	Unique worker identifier  |
+|last_seen|	TIMESTAMP|	Last heartbeat time  |
+|status|	TEXT|	active/inactive| 
+| :------- | :------: | -------: | 
 ### 3. API Design ###
 Scheduler API (REST)  
 Method&emsp;	Endpoint&emsp;	Description&emsp;	Payload / Response  
