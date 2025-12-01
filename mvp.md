@@ -18,17 +18,17 @@ CLI (optional): Go CLI to submit/manage jobs
 Logging: Console + DB logs for simplicity
 
 1. High-Level Architecture
-+-------------------+        HTTP/gRPC         +-------------------+
-|   Scheduler       |<-----------------------> |      Worker       |
-|  (central process)|                          |  (multiple nodes) |
-+-------------------+        REST API         +-------------------+
-        |
-        | stores metadata
-        v
-+-------------------+
-|   Database        |
-|  (Postgres/SQLite)|
-+-------------------+
++-------------------+        HTTP/gRPC         +-------------------+  
+|   Scheduler       |<-----------------------> |      Worker       |  
+|  (central process)|                          |  (multiple nodes) |  
++-------------------+        REST API         +-------------------+   
+        |  
+        | stores metadata  
+        v  
++-------------------+  
+|   Database        |  
+|  (Postgres/SQLite)|  
++-------------------+  
 
 
 Key Design Decisions for Flexibility:
