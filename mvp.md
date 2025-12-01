@@ -1,9 +1,9 @@
-Distributed Job Scheduler – MVP Design Document  
+# Distributed Job Scheduler – MVP Design Document # 
 
-Project Goal:  
+## Project Goal: #    
 Build a distributed job scheduler that allows users to submit, schedule, and monitor jobs running on multiple worker nodes. The system must support distributed execution, fault tolerance for worker nodes, and be modular enough for future extensions like DAG workflows, leader election, and autoscaling.  
 
-Tech Stack (MVP):  
+## Tech Stack (MVP): #  
 
 Language: Go  
 
@@ -17,7 +17,7 @@ CLI (optional): Go CLI to submit/manage jobs
 
 Logging: Console + DB logs for simplicity  
 
-1. High-Level Architecture  
+## 1. High-Level Architecture ##
 +-------------------+        HTTP/gRPC         +-------------------+  
 |   Scheduler       |<-----------------------> |      Worker       |  
 |  (central process)|                          |  (multiple nodes) |  
@@ -31,7 +31,7 @@ Logging: Console + DB logs for simplicity
 +-------------------+  
 
   
-Key Design Decisions for Flexibility:  
+## Key Design Decisions for Flexibility: ##
 
 Scheduler and workers communicate over REST → easy to swap for gRPC later.  
 
@@ -41,8 +41,8 @@ Worker execution is modular → supports shell commands now, can add Python scri
 
 Heartbeat logic in workers allows scheduler to detect failures → can be extended to multi-scheduler.  
 
-2. Components  
-2.1 Scheduler  
+## 2. Components ##
+### 2.1 Scheduler ###
 
 Responsibilities:  
 
@@ -70,7 +70,7 @@ storage.go: DB interface
 
 job_runner.go (optional in MVP for testing local execution)  
 
-2.2 Worker  
+### 2.2 Worker ###
 
 Responsibilities:  
 
@@ -94,7 +94,7 @@ executor.go: Job execution
 
 logger.go: Logs to console + DB via scheduler API  
 
-2.3 Database  
+### 2.3 Database ###
 
 Responsibilities:  
 
@@ -125,7 +125,7 @@ Column	Type	Description
 worker_id	TEXT PK	Unique worker identifier  
 last_seen	TIMESTAMP	Last heartbeat time  
 status	TEXT	active/inactive  
-3. API Design  
+### 3. API Design ###
 Scheduler API (REST)  
 Method	Endpoint	Description	Payload / Response  
 POST	/jobs	Submit new job	{name, command, schedule}  
@@ -134,7 +134,7 @@ POST	/workers/register	Worker registration	{worker_id}
 POST	/workers/heartbeat	Worker heartbeat	{worker_id}  
 POST	/jobs/{id}/log	Worker submits logs	{worker_id, logs, status}  
 GET	/jobs	List all jobs	[job summaries]  
-4. Worker Protocol  
+### 4. Worker Protocol ###
 
 Worker starts → POST /workers/register with unique ID  
 
@@ -148,7 +148,7 @@ Worker periodically sends heartbeat → POST /workers/heartbeat
 
 This keeps scheduler aware of worker availability and allows failover for missed jobs.  
 
-5. Job Execution Flow  
+### 5. Job Execution Flow ###
 
 Scheduler receives job → saves to jobs table  
 
@@ -170,7 +170,7 @@ Shell commands → Python scripts, Docker tasks
 
 Single scheduler → multiple schedulers with leader election  
 
-6. Key MVP Design Principles  
+### 6. Key MVP Design Principles ###
 
 Keep scheduler-worker communication abstracted → can swap REST → gRPC  
 
@@ -182,7 +182,7 @@ Heartbeat/failover ready → distributed architecture foundation
 
 Minimal feature set now → extend later without breaking API  
 
-7. Milestones for MVP  
+### 7. Milestones for MVP ###
 Week	Task  
 1	Project scaffolding (Go modules, folders) + DB schema + basic CLI  
 2	Implement scheduler REST API → add job submission & status endpoints  
@@ -190,7 +190,7 @@ Week	Task
 4	Implement job assignment logic → workers execute shell commands → update logs/status  
 5	Add retry logic for failed jobs + simple job history query  
 6	Optional: CLI commands to list jobs, check status, and submit jobs  
-8. Open Points for Future Extensions  
+### 8. Open Points for Future Extensions ###
 
 Multi-scheduler support → leader election (Raft/etcd)  
 
@@ -204,7 +204,7 @@ Web-based dashboard UI
 
 Support for Python, Docker, or containerized tasks  
 
-✅ Summary  
+## Summary ##
 
 Your MVP Distributed Job Scheduler:  
 
