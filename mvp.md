@@ -18,10 +18,10 @@ CLI (optional): Go CLI to submit/manage jobs
 Logging: Console + DB logs for simplicity  
 
 ## 1. High-Level Architecture ##
-+-------------------+        HTTP/gRPC         +-------------------+  
++-------------------+  &emsp; HTTP/gRPC&emsp; +-------------------+  
 |   Scheduler       |<-----------------------> |      Worker       |  
-|  (central process)|                          |  (multiple nodes) |  
-+-------------------+        REST API         +-------------------+   
+|  (central process)| &emsp; &emsp;            |  (multiple nodes) |  
++-------------------+ &emsp;   REST API&emsp; +-------------------+   
 &emsp;        |  
 &emsp;        | stores metadata  
 &emsp;        v  
@@ -104,7 +104,7 @@ Abstracted so scheduler can support multiple DBs in future
 
 Tables:  
 
-jobs  
+#### jobs ####   
 | Column |	Type |	Description |
 |--------|-------|--------------|  
 | id     |INT PK |  Unique job I|  
@@ -112,8 +112,8 @@ jobs
 |command |	TEXT |	Shell command to execute |  
 | schedule	|TEXT	|Cron string | 
 |created_at|	TIMESTAMP|	Job creation time | 
-| :------- | :------: | -------: |
-job_runs  
+
+#### job_runs ####  
 |Column|	Type|	Description  |
 |run_id|	INT PK|	Unique run ID  |
 |job_id	|INT FK|	Linked job  |
@@ -122,8 +122,8 @@ job_runs
 |end_time	|TIMESTAMP|	Run end  |
 |status|	TEXT|	success/failure/running | 
 |logs|	TEXT|	Job logs  |
-| :------- | :------: | -------: |
-workers  
+
+#### workers ####  
 |Column	|Type|	Description  |
 |worker_id|	TEXT PK|	Unique worker identifier  |
 |last_seen|	TIMESTAMP|	Last heartbeat time  |
